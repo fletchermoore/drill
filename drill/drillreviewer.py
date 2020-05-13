@@ -599,6 +599,7 @@ time = %(time)d;
         self.bottom.web.eval("showAnswer(%s);" % json.dumps(middle))
 
     def _remaining(self) -> str:
+        return "Drill Reviewer"
         if not self.mw.col.conf["dueCounts"]:
             return ""
         if self.hadCardQueue:

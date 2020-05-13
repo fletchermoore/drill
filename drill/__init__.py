@@ -72,30 +72,22 @@ def patchedOnDeckConf(self, deck=None):
         aqt.deckconf.DeckConf(self, deck)
 
 
-def _drillState(self, oldState):
-    self.reviewer = self.drillReviewer
-    self.reviewer.show()
-
-
 # copy-paste
+# there's actually a hook for this in moveToState
 def patchedReviewState(self, oldState):
-    self.reviewer = mw.normalReviewer
+    deck = self.col.decks.current()
+    if not deck.get("drill", False):
+        self.reviewer = self.normalReviewer
+    else:
+        self.reviewer = self.drillReviewer    
     self.reviewer.show()
 
-
-# called before switching to drill state
-# may not need that...
-def _drillCleanup(self, newState):
-    if newState != "resetRequired" and newState != "drill":
-        self.reviewer.cleanup()
 
 
 # Monkey Patching
 from aqt.main import AnkiQt
 AnkiQt._overviewState = patchedOverviewState # ensure switch to custom drill overview on state change
 AnkiQt.onDeckConf = patchedOnDeckConf # ensure open drill option page
-AnkiQt._drillState = _drillState # add our functions to the state machine
-AnkiQt._drillCleanup = _drillCleanup # add our functions to the state machine
 AnkiQt._reviewState = patchedReviewState # swaps reviewers
 
 # create a new menu item
