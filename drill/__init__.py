@@ -55,6 +55,7 @@ def patchedOverviewState(self, oldState: str) -> None:
     else:
         self.overview.show()
 
+
 # copy-paste w/ check for drill flag
 def patchedOnDeckConf(self, deck=None):
     if not deck:
@@ -70,13 +71,41 @@ def patchedOnDeckConf(self, deck=None):
 
         aqt.deckconf.DeckConf(self, deck)
 
+
+def _drillState(self, oldState):
+    self.reviewer = self.drillReviewer
+    self.reviewer.show()
+
+
+# copy-paste
+def patchedReviewState(self, oldState):
+    self.reviewer = mw.normalReviewer
+    self.reviewer.show()
+
+
+# called before switching to drill state
+# may not need that...
+def _drillCleanup(self, newState):
+    if newState != "resetRequired" and newState != "drill":
+        self.reviewer.cleanup()
+
+
 # Monkey Patching
 from aqt.main import AnkiQt
-AnkiQt._overviewState = patchedOverviewState
-AnkiQt.onDeckConf = patchedOnDeckConf
+AnkiQt._overviewState = patchedOverviewState # ensure switch to custom drill overview on state change
+AnkiQt.onDeckConf = patchedOnDeckConf # ensure open drill option page
+AnkiQt._drillState = _drillState # add our functions to the state machine
+AnkiQt._drillCleanup = _drillCleanup # add our functions to the state machine
+AnkiQt._reviewState = patchedReviewState # swaps reviewers
 
 # create a new menu item
 action = QAction("Drill", mw)
 action.triggered.connect(onDrill)
 # and add it to the tools menu
 mw.form.menuTools.addAction(action)
+
+# this code executes right after normal mw.setupUI, so we can just add our Reviewer here
+# on state changes we are going to swap the reviewer
+from drill.drillreviewer import DrillReviewer
+mw.drillReviewer = DrillReviewer(mw)
+mw.normalReviewer = mw.reviewer # create a second link to swap them out
