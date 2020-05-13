@@ -64,6 +64,7 @@ class DrillOverview:
     def _linkHandler(self, url):
         if url == "study":
             self.mw.col.startTimebox()
+            self.mw.drill.onStudy(self.mw.col)
             self.mw.moveToState("review") 
             if self.mw.state == "overview":
                 tooltip(_("No cards are due yet."))

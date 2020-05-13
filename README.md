@@ -8,6 +8,10 @@ TODO:
 - ensure mw._debugCard doesn't do something odd
 - Figure out what reviewCleanup does 
 - stop monkey patching reviewState change and use existing hook
+- remove label above "Next Card" button
+- cycle
+- figure out what a good limit to number of cards allowed for drilling / managing large lists
+- remove ordering option from deck conf or code in option
 
 BUGS:
 - fin

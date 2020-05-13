@@ -599,7 +599,7 @@ time = %(time)d;
         self.bottom.web.eval("showAnswer(%s);" % json.dumps(middle))
 
     def _remaining(self) -> str:
-        return "Drill Reviewer"
+        return "Drill Reviewer" # temporarily remove count line?
         if not self.mw.col.conf["dueCounts"]:
             return ""
         if self.hadCardQueue:
@@ -621,15 +621,17 @@ time = %(time)d;
         else:
             return 2
 
+    # MODIFIED: only got to the next card during reviewing
     def _answerButtonList(self) -> Sequence[Tuple[int, str]]:
-        l = ((1, _("Again")),)
-        cnt = self.mw.col.sched.answerButtons(self.card)
-        if cnt == 2:
-            return l + ((2, _("Good")),)
-        elif cnt == 3:
-            return l + ((2, _("Good")), (3, _("Easy")))
-        else:
-            return l + ((2, _("Hard")), (3, _("Good")), (4, _("Easy")))
+        return ((2, _("Next Card")),)
+        # l = ((1, _("Again")),)
+        # cnt = self.mw.col.sched.answerButtons(self.card)
+        # if cnt == 2:
+        #     return l + ((2, _("Good")),)
+        # elif cnt == 3:
+        #     return l + ((2, _("Good")), (3, _("Easy")))
+        # else:
+        #     return l + ((2, _("Hard")), (3, _("Good")), (4, _("Easy")))
 
     def _answerButtons(self) -> str:
         default = self._defaultEase()

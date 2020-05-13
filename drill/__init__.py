@@ -101,3 +101,7 @@ mw.form.menuTools.addAction(action)
 from drill.drillreviewer import DrillReviewer
 mw.drillReviewer = DrillReviewer(mw)
 mw.normalReviewer = mw.reviewer # create a second link to swap them out
+
+# our scheduler
+from drill.drill import Drill
+mw.drill = Drill()
