@@ -107,7 +107,8 @@ class DrillReviewer:
                 # need to reset
                 self.mw.col.reset()
                 self.hadCardQueue = False
-            c = self.mw.col.sched.getCard()
+            #c = self.mw.col.sched.getCard()
+            c = self.mw.drill.getCard()
         self.card = c
         if not c:
             self.mw.moveToState("overview")
@@ -261,7 +262,8 @@ The front of this card is empty. Please run Tools>Empty Cards."""
         )
         if not proceed:
             return
-        self.mw.col.sched.answerCard(self.card, ease)
+        #self.mw.col.sched.answerCard(self.card, ease)
+        self.mw.drill.answerCard()
         gui_hooks.reviewer_did_answer_card(self, self.card, ease)
         self._answeredIds.append(self.card.id)
         self.mw.autosave()

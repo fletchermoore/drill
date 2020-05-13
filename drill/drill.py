@@ -4,16 +4,10 @@ from typing import List
 
 # More or less replaces the functions of the scheduler
 class Drill:
-    # def __init__(self):
-    #     pass
-    # #self.col = col
 
     # Called when studying is initiated from the Overview
     def onStudy(self, col):
         self.col = col # will we need this later?
-        print("study begins, let's figure out what cards we got")
-        # sort and list cards by tag
-
         lim = 2000 # meh?
         dids = ids2str(self.col.decks.active())
 #         count = self.col.db.scalar(f"""
@@ -23,7 +17,6 @@ class Drill:
 #             lim,
 #         )
 #         print(count)
-
         # collect all the card ids now
         self.cardIds = self.col.db.list(
             f"""
@@ -31,7 +24,6 @@ class Drill:
             % dids,
             lim,
         )
-
         # collect all tags and card ids
         rows = self.col.db.all(
             f"""
@@ -40,7 +32,35 @@ class Drill:
             lim
         )
         self.tagDict = self.groupByTags(rows)
-        
+        self.currentTag = None
+        self.cursor = 0
+
+
+    # returns card or None, called from reviewer.nextCard
+    # increments cursor
+    def getCard(self):
+        # during normal reviewing, col.log(card), bury siblings, and card.startTimer() are called
+        # do we want to do these things?
+        if self.currentTag == None:
+            keys = list(self.tagDict.keys())
+            if len(keys) > 0:
+                self.currentTag = keys[0] 
+        cards = self.tagDict.get(self.currentTag, [])
+        if len(cards) <= self.cursor:
+            return None
+        else:
+            card = self.col.getCard(cards[self.cursor])
+            self.cursor += 1
+            if card:
+                card.startTimer() # if we don't call this, we crash. nice.
+            return card
+
+
+    # do nothing for now
+    # replaces default in reviewer
+    # cursor is updated on getCard and not needed here
+    def answerCard(self):
+        pass
 
 
     # given sql rows containing [tag, cid]
