@@ -4,9 +4,27 @@ from typing import List
 
 # More or less replaces the functions of the scheduler
 class Drill:
+    def __init__(self):
+        self.tagDict = None
+        self.currentTag = None
+        self.cursor = 0  
+
 
     # Called when studying is initiated from the Overview
-    def onStudy(self, col):
+    # received tag to study
+    # sets current tag and cursor to beginning
+    # returns nothing
+    def onStudy(self, tag):
+        if len(tag) > 0:
+            self.currentTag = tag
+        self.cursor = 0 # start from the beginning
+
+
+    # DB query to create a tag dict object from the collection
+    # queries DB for all cids and tags in the current deck(s?)
+    # formats these into a useful dict member
+    # return nothing
+    def loadTagDict(self, col):
         self.col = col # will we need this later?
         lim = 2000 # meh?
         dids = ids2str(self.col.decks.active())
@@ -74,6 +92,15 @@ class Drill:
             for tag in tags:
                 tagDict[tag] = tagDict.get(tag, []) + [cid]
         return tagDict
+
+    
+    # called by Overview
+    # given collection
+    # return list of tags
+    def getTags(self, col):
+        if self.tagDict == None:
+            self.loadTagDict(col)
+        return list(self.tagDict.keys())
 
 
     # copy-paste from TagManger

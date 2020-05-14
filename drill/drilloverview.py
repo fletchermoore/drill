@@ -35,6 +35,7 @@ class DrillOverviewContent:
     shareLink: str
     desc: str
     table: str
+    tags: str
 
 
 class DrillOverview:
@@ -62,9 +63,10 @@ class DrillOverview:
     ############################################################
 
     def _linkHandler(self, url):
-        if url == "study":
+        if url.startswith("study"):
+            tag = url[6:] # returns '' if out of bounds
             self.mw.col.startTimebox()
-            self.mw.drill.onStudy(self.mw.col)
+            self.mw.drill.onStudy(tag)
             self.mw.moveToState("review") 
             if self.mw.state == "overview":
                 tooltip(_("No cards are due yet."))
@@ -167,6 +169,7 @@ class DrillOverview:
             shareLink=shareLink,
             desc=self._desc(deck),
             table=self._table(),
+            tags=self._tags()
         )
         gui_hooks.overview_will_render_content(self, content)
         self.web.stdHtml(
@@ -175,6 +178,19 @@ class DrillOverview:
             js=["jquery.js", "overview.js"],
             context=self,
         )
+
+
+    def _tags(self):
+        tags = self.mw.drill.getTags(self.mw.col)
+        html = ""
+        for tag in tags:
+            htmlTag = tag
+            if self.mw.drill.currentTag == tag:
+                htmlTag = "(" + tag + ")"
+            html += "<a href=# onclick=\"return pycmd('study:%s')\">" % tag + htmlTag + "</a> "
+        #print(html)
+        return "<p>" + html + "</p>"
+
 
     def _desc(self, deck):
         if deck["dyn"]:
@@ -235,6 +251,7 @@ to their original deck."""
 %(shareLink)s
 %(desc)s
 %(table)s
+%(tags)s
 </center>
 """
 
