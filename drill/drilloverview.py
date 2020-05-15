@@ -59,17 +59,47 @@ class DrillOverview:
         self.mw.web.setFocus()
         gui_hooks.overview_did_refresh(self)
 
+    
+    # increment to the next tag, or roll back to the beginning
+    # then start studying
+    # called by user action/link
+    def studyNextTag(self):
+        tags = self.mw.drill.getTags(self.mw.col)
+        currentTag = self.mw.drill.currentTag
+        # set a reasonable default: first tag, or ''
+        nextTag = ''
+        if len(tags) > 0:
+            nextTag = tags[0]
+        # pick subsequent tag if exists
+        tagCount = len(tags)
+        for i, tag in enumerate(tags):
+            if tag == currentTag and (i + 1) < tagCount:
+                nextTag = tags[i+1]
+                break
+        # start studying
+        self.startStudying(nextTag)
+
+    
+    # begins study state and move to reviewer
+    def startStudying(self, tag):
+        self.mw.col.startTimebox()
+        self.mw.drill.onStudy(tag)
+        self.mw.moveToState("review") 
+        if self.mw.state == "overview":
+            tooltip(_("No cards are due yet."))
+
+
+
+
     # Handlers
     ############################################################
 
     def _linkHandler(self, url):
         if url.startswith("study"):
             tag = url[6:] # returns '' if out of bounds
-            self.mw.col.startTimebox()
-            self.mw.drill.onStudy(tag)
-            self.mw.moveToState("review") 
-            if self.mw.state == "overview":
-                tooltip(_("No cards are due yet."))
+            self.startStudying(tag)
+        elif url == "next":
+            self.studyNextTag()
         elif url == "anki":
             print("anki menu")
         elif url == "opts":
@@ -102,6 +132,7 @@ class DrillOverview:
             ("e", self.onEmptyKey),
             ("c", self.onCustomStudyKey),
             ("u", self.onUnbury),
+            ("n", self.studyNextTag)
         ]
 
     def _filteredDeck(self):
@@ -228,21 +259,10 @@ to their original deck."""
         else:
             return """
 <table width=400 cellpadding=5>
-<tr><td align=center valign=top>
-<table cellspacing=5>
-<tr><td>%s:</td><td><b><span class=new-count>%s</span></b></td></tr>
-<tr><td>%s:</td><td><b><span class=learn-count>%s</span></b></td></tr>
-<tr><td>%s:</td><td><b><span class=review-count>%s</span></b></td></tr>
-</table>
-</td><td align=center>
-%s</td></tr></table>""" % (
-                _("New"),
-                counts[0],
-                _("Learning"),
-                counts[1],
-                _("To Review"),
-                counts[2],
-                but("study", _("Study Now"), id="study", extra=" autofocus"),
+<tr><td align=center>
+%s %s</td></tr></table>""" % (
+                but("study", _("Study Current"), id="study", extra=" autofocus"),
+                but("next", _("Study Next"), key = 'N', id="next"),
             )
 
     _body = """

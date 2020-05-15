@@ -5,9 +5,28 @@ from typing import List
 # More or less replaces the functions of the scheduler
 class Drill:
     def __init__(self):
-        self.tagDict = None
+        self.deck = None
+        self.col = None
         self.currentTag = None
-        self.cursor = 0  
+        self.cursor = 0
+        self.clearCache()
+
+
+    # dumps all metadata for deck
+    def clearCache(self):
+        self.tagDict = None  
+
+
+    # saves state information to deck JSON
+    # currentTag, cursor position
+    def save(self):
+        if self.deck != None:
+            self.deck["drillState"] = {
+                "currentTag": self.currentTag,
+                "cursor": self.cursor
+            }
+            self.col.decks.save(self.deck)
+
 
 
     # Called when studying is initiated from the Overview
@@ -18,6 +37,7 @@ class Drill:
         if len(tag) > 0:
             self.currentTag = tag
         self.cursor = 0 # start from the beginning
+        self.save()
 
 
     # DB query to create a tag dict object from the collection
@@ -25,7 +45,6 @@ class Drill:
     # formats these into a useful dict member
     # return nothing
     def loadTagDict(self, col):
-        self.col = col # will we need this later?
         lim = 2000 # meh?
         dids = ids2str(self.col.decks.active())
 #         count = self.col.db.scalar(f"""
@@ -50,8 +69,6 @@ class Drill:
             lim
         )
         self.tagDict = self.groupByTags(rows)
-        self.currentTag = None
-        self.cursor = 0
 
 
     # returns card or None, called from reviewer.nextCard
@@ -96,11 +113,27 @@ class Drill:
     
     # called by Overview
     # given collection
+    # creates cache of cids and tags in tagDict
     # return list of tags
     def getTags(self, col):
+        # will need to clear any cache of tags if set for a different deck
+        self.setDeck(col)
         if self.tagDict == None:
             self.loadTagDict(col)
         return list(self.tagDict.keys())
+
+
+    # if current deck is wrong, reload
+    # if deck is unchanged, do nothing
+    def setDeck(self, col):
+        currentDeck = col.decks.current()
+        if self.deck == None or self.deck["id"] != currentDeck["id"]:
+            self.col = col
+            self.deck = currentDeck
+            if currentDeck.get("drillState", None) != None:
+                self.currentTag = currentDeck["drillState"].get("currentTag", None)
+                self.cursor = currentDeck["drillState"].get("cursor", 0)
+            self.clearCache()
 
 
     # copy-paste from TagManger
