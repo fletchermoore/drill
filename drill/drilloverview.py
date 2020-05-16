@@ -12,6 +12,7 @@ from aqt import gui_hooks
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar
 from aqt.utils import askUserDialog, openLink, shortcut, tooltip
+import datetime
 
 
 class DrillOverviewBottomBar:
@@ -211,16 +212,72 @@ class DrillOverview:
         )
 
 
+# reference to what is created by default Deck viewer
+# <tr class="top-level-drag-row ui-droppable"><td colspan="6">&nbsp;</td></tr>
+# <tr class="deck ui-draggable ui-draggable-handle ui-droppable" id="1588104695327">
+# <td class="decktd" colspan="5"><span class="collapse"></span><a class="deck " href="#" onclick="return pycmd('open:1588104695327')">Core 10k Sentences</a></td>
+# <td align="right"><span class="zero-count">0</span></td>
+# <td align="right"><span class="new-count">1000+</span></td>
+# <td align="center" class="opts"><a onclick="return pycmd(&quot;opts:1588104695327&quot;);"><img src="/_anki/imgs/gears.svg" class="gears"></a></td>
+# </tr>
+# <tr class="deck ui-draggable ui-draggable-handle ui-droppable" id="1589635862390">
+
+#         <td class="decktd" colspan="5"><span class="collapse"></span><a class="deck filtered" href="#" onclick="return pycmd('open:1589635862390')">Drill 1 changed</a></td><td align="right"><span class="review-count">230</span></td><td align="right"><span class="zero-count">0</span></td><td align="center" class="opts"><a onclick="return pycmd(&quot;opts:1589635862390&quot;);"><img src="/_anki/imgs/gears.svg" class="gears"></a></td></tr><tr class="deck current ui-draggable ui-draggable-handle ui-droppable" id="1589118906975">
+
+#         <td class="decktd" colspan="5"><span class="collapse"></span><a class="deck " href="#" onclick="return pycmd('open:1589118906975')">Grammar</a></td><td align="right"><span class="zero-count">0</span></td><td align="right"><span class="zero-count">0</span></td><td align="center" class="opts"><a onclick="return pycmd(&quot;opts:1589118906975&quot;);"><img src="/_anki/imgs/gears.svg" class="gears"></a></td></tr><tr class="deck ui-draggable ui-draggable-handle ui-droppable" id="1585075338304">
+
+#         <td class="decktd" colspan="5"><span class="collapse"></span><a class="deck " href="#" onclick="return pycmd('open:1585075338304')">Spanish Essential Top 5000</a></td><td align="right"><span class="review-count">1000+</span></td><td align="right"><span class="new-count">1000+</span></td><td align="center" class="opts"><a onclick="return pycmd(&quot;opts:1585075338304&quot;);"><img src="/_anki/imgs/gears.svg" class="gears"></a></td></tr><tr class="deck ui-draggable ui-draggable-handle ui-droppable" id="1588127450627">
+
+#         <td class="decktd" colspan="5"><span class="collapse"></span><a class="deck " href="#" onclick="return pycmd('open:1588127450627')">Takoboto</a></td><td align="right"><span class="review-count">28</span></td><td align="right"><span class="new-count">17</span></td><td align="center" class="opts"><a onclick="return pycmd(&quot;opts:1588127450627&quot;);"><img src="/_anki/imgs/gears.svg" class="gears"></a></td></tr><tr class="deck ui-draggable ui-draggable-handle ui-droppable" id="1588017320375">
+
+#         <td class="decktd" colspan="5"><span class="collapse"></span><a class="deck " href="#" onclick="return pycmd('open:1588017320375')">日本語　KanjiDamage</a></td><td align="right"><span class="zero-count">0</span></td><td align="right"><span class="zero-count">0</span></td><td align="center" class="opts"><a onclick="return pycmd(&quot;opts:1588017320375&quot;);"><img src="/_anki/imgs/gears.svg" class="gears"></a></td></tr><tr class="deck ui-draggable ui-draggable-handle ui-droppable" id="1588970810769">
+
+#         <td class="decktd" colspan="5"><span class="collapse"></span><a class="deck " href="#" onclick="return pycmd('open:1588970810769')">日本語だけ</a></td><td align="right"><span class="review-count">1</span></td><td align="right"><span class="zero-count">0</span></td><td align="center" class="opts"><a onclick="return pycmd(&quot;opts:1588970810769&quot;);"><img src="/_anki/imgs/gears.svg" class="gears"></a></td></tr><tr class="top-level-drag-row ui-droppable"><td colspan="6">&nbsp;</td></tr>
+
+
     def _tags(self):
+        htmlTableHeader = """
+<table cellspacing="0" cellpading="3" style="margin-top:20px;margin-bottom:20px">
+    <tbody>
+        <tr>
+            <th align="right"></th>
+            <th align="left">Tag</th>
+            <th align="center">Last Review</th>
+            <th class="count" align="center">Reps<br>Today</th>
+            <th class="count" align="center">Reps<br>Total</th>
+            <th class="count" align="left"></th>
+        </tr>
+        """
         tags = self.mw.drill.getTags(self.mw.col)
-        html = ""
+        htmlRows = ""
         for tag in tags:
+            last = self.mw.drill.tagLast(tag) # timestamp of last review
             htmlTag = tag
+            indicatorStyle = ""
+            indicatorLeft = ""
+            indicatorRight = ""
+            reps = self.mw.drill.tagReps(tag)
+            repsToday = self.mw.drill.tagRepsToday(tag)
             if self.mw.drill.currentTag == tag:
-                htmlTag = "(" + tag + ")"
-            html += "<a href=# onclick=\"return pycmd('study:%s')\">" % tag + htmlTag + "</a> "
-        #print(html)
-        return "<p>" + html + "</p>"
+                indicatorStyle = "style=\"background-color:#c9c9c9\""
+                indicatorLeft = ">> "
+                indicatorRight = " <<"
+            htmlRow = """
+        <tr %s>
+            <td align="right">%s</td>
+            <td style="padding-right:20px" class="decktd" align="left"><a class="deck" href=# onclick="return pycmd('study:%s')">%s</a></td>
+            <td align="right">%s</td>
+            <td align="right">%s</td>
+            <td align="right">%s</td>
+            <td align="left">%s</td>
+        </tr>
+            """ % (indicatorStyle, indicatorLeft, tag, htmlTag, last, repsToday, reps, indicatorRight)
+            htmlRows += htmlRow
+        htmlTableFooter = """
+    </tbody>
+</table>
+        """
+        return htmlTableHeader + htmlRows + htmlTableFooter
 
 
     def _desc(self, deck):
@@ -229,11 +286,7 @@ class DrillOverview:
                 """\
 This is a special deck for studying outside of the normal schedule."""
             )
-            desc += " " + _(
-                """\
-Deleting this deck from the deck list will return all remaining cards \
-to their original deck."""
-            )
+            desc = _("Select a tag to study all cards with that tag in a fixed order. Repeat this exercise as much as desired. Cards will not be scheduled.")
         else:
             desc = deck.get("desc", "")
         if not desc:

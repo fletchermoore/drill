@@ -1,5 +1,6 @@
 from anki.utils import ids2str, intTime
 from typing import List
+import datetime
  
 
 # More or less replaces the functions of the scheduler
@@ -8,6 +9,7 @@ class Drill:
         self.deck = None
         self.col = None
         self.currentTag = None
+        self.tagMeta = {}
         self.cursor = 0
         self.clearCache()
 
@@ -23,7 +25,8 @@ class Drill:
         if self.deck != None:
             self.deck["drillState"] = {
                 "currentTag": self.currentTag,
-                "cursor": self.cursor
+                "cursor": self.cursor,
+                "tagMeta": self.tagMeta
             }
             self.col.decks.save(self.deck)
 
@@ -91,11 +94,93 @@ class Drill:
             return card
 
 
-    # do nothing for now
-    # replaces default in reviewer
-    # cursor is updated on getCard and not needed here
+    # convenience
+    def currentCardCount(self):
+        return len(self.tagDict.get(self.currentTag, []))
+
+    
+    #convenience
+    def isEnd(self):
+        return self.currentCardCount() <= self.cursor
+
+
+    def tagReps(self, tag):
+        meta = self.tagMeta.get(tag, {})
+        return meta.get("reps", 0)
+
+    
+    def tagRepsToday(self, tag):
+        if not self.isToday(self.tagLast(tag)):
+            return 0
+        else: 
+            meta = self.tagMeta.get(tag, {})
+            repsToday = meta.get("repsToday", 0)
+            return repsToday
+    
+
+    def tagLast(self, tag):
+        meta = self.tagMeta.get(tag, {})
+        return meta.get("last", "")
+
+    
+    # convenience
+    def currentReps(self):
+        return self.tagReps(self.currentTag)
+
+    # convenience
+    def currentRepsToday(self):
+        return self.tagRepsToday(self.currentTag)
+
+
+    # safetly set metadata for tags
+    def setCurrentMeta(self, key, value):
+        meta = self.tagMeta.get(self.currentTag, None)
+        if meta == None:
+            meta = {
+                "reps": 0,
+                "repsToday": 0,
+                "last": ""
+            }
+        meta[key] = value
+        self.tagMeta[self.currentTag] = meta
+
+
+    def isToday(self, isotimestamp):
+        if isotimestamp == '':
+            return True
+        last = datetime.datetime.fromisoformat(isotimestamp)
+        today = datetime.datetime.now()
+        if last.day != today.day or last.month != today.month or last.year != today.year:
+            return False
+        else:
+            return True
+
+
+    def incrementReps(self):
+        reps = self.currentReps()
+        reps += 1
+        self.setCurrentMeta("reps", reps)
+        repsToday = self.currentRepsToday()
+        if self.isToday(self.tagLast(self.currentTag)):
+            repsToday += 1
+        else:
+            repsToday = 1
+        self.setCurrentMeta("repsToday", repsToday)
+
+    
+    def updateLast(self):
+        time = datetime.datetime.now().isoformat(sep=' ', timespec="seconds")
+        self.setCurrentMeta("last", time)
+
+
+    # detects if we are at end of cycle
+    # records the time and adds to rep count
     def answerCard(self):
-        pass
+        if self.isEnd():
+            self.incrementReps() # must be called before update last so the
+                                 # old timestamp can be compared to the current
+            self.updateLast()
+            self.save()
 
 
     # given sql rows containing [tag, cid]
@@ -133,6 +218,7 @@ class Drill:
             if currentDeck.get("drillState", None) != None:
                 self.currentTag = currentDeck["drillState"].get("currentTag", None)
                 self.cursor = currentDeck["drillState"].get("cursor", 0)
+                self.tagMeta = currentDeck["drillState"].get("tagMeta", {})
             self.clearCache()
 
 

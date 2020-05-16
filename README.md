@@ -1,6 +1,9 @@
 # Drill
 Anki 2.1 Addon to make doing traditional flashcards or grammar drills easier.
 
+Work in progress. Major bugs still exist. Not completely functional at the momemnt.
+
+
 ## Basics
 
 This addon adds "Drill" to the Tools menu. This option creates a Filtered deck, very similar to other filtered decks, except cards reviewed with Drill are not scheduled.
@@ -27,6 +30,7 @@ Anki has an incredible card browser and SRS system, but Anki is not designed for
 
 - Order tags: last seen or alpha
 - Timebox entire study session, even if changing tags
+- Show position within tag while reviewing
 
 ### Tedious stuff prior to release
 
@@ -45,9 +49,14 @@ Anki has an incredible card browser and SRS system, but Anki is not designed for
 - figure out what lastCard in reviewer does. it's tracking answered card ids.
 - ensure behaves properly when tags are added and removed from cards via editor/browser
 - using .current() vs .active() to retrieve deck. risky?
+- move table styling to css file?
+- make sure styling works with night view
+- play nice with localization
 
 ## Bugs
 
-- On overview, when webview refreshes my tags disappeared
+- On drill overview, when webview refreshes it reverts to normal overview somehow
 - empty deck should clear drill cache
+- Is possible to not load cards correctly. can trigger with sync
+- Rebuilding deck does not actually load cards
 
