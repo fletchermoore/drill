@@ -14,6 +14,10 @@ class Drill:
         self.clearCache()
 
 
+    def onGuiReset(self):
+        self.clearCache()
+
+
     # dumps all metadata for deck
     def clearCache(self):
         self.tagDict = None  

@@ -34,10 +34,10 @@ Anki has an incredible card browser and SRS system, but Anki is not designed for
 
 ### Tedious stuff prior to release
 
+- Can I remove monkey patching the deckconf commands?
 - incorporate Undo. this is normally managed by mw def onUndo
 - ensure mw._debugCard doesn't do something odd
 - Figure out what reviewCleanup does 
-- stop monkey patching reviewState change and use existing hook
 - remove label above "Next Card" button
 - figure out what a good limit to number of cards allowed for drilling / managing large lists
 - remove ordering option from deck conf or code in option
@@ -47,7 +47,6 @@ Anki has an incredible card browser and SRS system, but Anki is not designed for
 - remove shortcut that lets user activate Again
 - does Bury make sense or should it be removed? remove probably
 - figure out what lastCard in reviewer does. it's tracking answered card ids.
-- ensure behaves properly when tags are added and removed from cards via editor/browser
 - using .current() vs .active() to retrieve deck. risky?
 - move table styling to css file?
 - make sure styling works with night view
@@ -55,8 +54,5 @@ Anki has an incredible card browser and SRS system, but Anki is not designed for
 
 ## Bugs
 
-- On drill overview, when webview refreshes it reverts to normal overview somehow
-- empty deck should clear drill cache
 - Is possible to not load cards correctly. can trigger with sync
-- Rebuilding deck does not actually load cards
 

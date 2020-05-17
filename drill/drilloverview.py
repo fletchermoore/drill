@@ -236,6 +236,9 @@ class DrillOverview:
 
 
     def _tags(self):
+        tags = self.mw.drill.getTags(self.mw.col)
+        if len(tags) < 1:
+            return ""
         htmlTableHeader = """
 <table cellspacing="0" cellpading="3" style="margin-top:20px;margin-bottom:20px">
     <tbody>
@@ -306,8 +309,9 @@ This is a special deck for studying outside of the normal schedule."""
                     counts[n] = "1000+"
         but = self.mw.button
         if finished:
+            finishedMessage = _("<b>This deck is empty and need to be rebuilt before you can use it.</b>")
             return '<div style="white-space: pre-wrap;">%s</div>' % (
-                self.mw.col.sched.finishedMsg()
+                finishedMessage
             )
         else:
             return """

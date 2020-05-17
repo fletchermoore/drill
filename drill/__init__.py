@@ -1,5 +1,5 @@
 # import the main window object (mw) from aqt
-from aqt import mw
+from aqt import mw, gui_hooks
 # import the "show info" tool from utils.py
 from aqt.utils import showInfo
 # import all of the Qt GUI library
@@ -43,20 +43,6 @@ def newDrill(decks, name: str) -> int:
 
 
 # copy-paste w/ check for drill flag
-def patchedOverviewState(self, oldState: str) -> None:
-    if not self._selectedDeck():
-        return self.moveToState("deckBrowser")
-    self.col.reset()
-    if self.col.decks.current().get("drill", False):
-        if not hasattr(self, "drillOverview"):
-            from drill.drilloverview import DrillOverview
-            self.drillOverview = DrillOverview(self)
-        self.drillOverview.show()
-    else:
-        self.overview.show()
-
-
-# copy-paste w/ check for drill flag
 def patchedOnDeckConf(self, deck=None):
     if not deck:
         deck = self.col.decks.current()
@@ -72,23 +58,24 @@ def patchedOnDeckConf(self, deck=None):
         aqt.deckconf.DeckConf(self, deck)
 
 
-# copy-paste
-# there's actually a hook for this in moveToState
-def patchedReviewState(self, oldState):
-    deck = self.col.decks.current()
+# prior to moving to reviewer, if we are studying a drill deck, switch to my custom reviewer
+# otherwise, switch back to default
+def onStateWillChange(state, oldState):
+    deck = mw.col.decks.current()
     if not deck.get("drill", False):
-        self.reviewer = self.normalReviewer
+        mw.reviewer = mw.normalReviewer
+        mw.overview = mw.normalOverview
     else:
-        self.reviewer = self.drillReviewer    
-    self.reviewer.show()
-
+        mw.reviewer = mw.drillReviewer  
+        mw.overview = mw.drillOverview 
 
 
 # Monkey Patching
 from aqt.main import AnkiQt
-AnkiQt._overviewState = patchedOverviewState # ensure switch to custom drill overview on state change
+#AnkiQt._overviewState = patchedOverviewState # ensure switch to custom drill overview on state change
 AnkiQt.onDeckConf = patchedOnDeckConf # ensure open drill option page
-AnkiQt._reviewState = patchedReviewState # swaps reviewers
+#AnkiQt._reviewState = patchedReviewState # swaps reviewers
+
 
 # create a new menu item
 action = QAction("Drill", mw)
@@ -96,12 +83,22 @@ action.triggered.connect(onDrill)
 # and add it to the tools menu
 mw.form.menuTools.addAction(action)
 
-# this code executes right after normal mw.setupUI, so we can just add our Reviewer here
-# on state changes we are going to swap the reviewer
+
+# plugin __init__.py code executes right after mw.setupUI(), so we can just add our Reviewer here
+# on state changes we are going to swap the reviewer and overview
 from drill.drillreviewer import DrillReviewer
 mw.drillReviewer = DrillReviewer(mw)
 mw.normalReviewer = mw.reviewer # create a second link to swap them out
+# same thing with the Overview page
+from drill.drilloverview import DrillOverview
+mw.drillOverview = DrillOverview(mw)
+mw.normalOverview = mw.overview # create a reference
+
 
 # our scheduler
 from drill.drill import Drill
 mw.drill = Drill()
+
+# add hooks
+gui_hooks.state_will_change.append(onStateWillChange)
+gui_hooks.state_did_reset.append(mw.drill.onGuiReset)
