@@ -107,7 +107,7 @@ class DrillReviewer:
                 # need to reset
                 self.mw.col.reset()
                 self.hadCardQueue = False
-            #c = self.mw.col.sched.getCard()
+            #c = self.mw.col.sched.getCard() 
             c = self.mw.drill.getCard()
         self.card = c
         if not c:

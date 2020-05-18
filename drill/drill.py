@@ -7,7 +7,14 @@ import datetime
 class Drill:
     def __init__(self):
         self.deck = None
-        self.col = None
+        self.col = None  # referencing collection like this is dangerous for us
+                         # on sync, and possibly other activities, Anki will discard
+                         # the collection and create a new one
+                         # in these cases, our reference will become invalid
+                         # so this collection reference is set in self.setDeck
+                         # which is called every time tags are requested.
+                         # hopefully that is sufficient. But this probably isn't
+                         # the most appropriate way to deal with this.
         self.currentTag = None
         self.tagMeta = {}
         self.cursor = 0
@@ -216,8 +223,8 @@ class Drill:
     # if deck is unchanged, do nothing
     def setDeck(self, col):
         currentDeck = col.decks.current()
+        self.col = col
         if self.deck == None or self.deck["id"] != currentDeck["id"]:
-            self.col = col
             self.deck = currentDeck
             if currentDeck.get("drillState", None) != None:
                 self.currentTag = currentDeck["drillState"].get("currentTag", None)

@@ -212,29 +212,6 @@ class DrillOverview:
         )
 
 
-# reference to what is created by default Deck viewer
-# <tr class="top-level-drag-row ui-droppable"><td colspan="6">&nbsp;</td></tr>
-# <tr class="deck ui-draggable ui-draggable-handle ui-droppable" id="1588104695327">
-# <td class="decktd" colspan="5"><span class="collapse"></span><a class="deck " href="#" onclick="return pycmd('open:1588104695327')">Core 10k Sentences</a></td>
-# <td align="right"><span class="zero-count">0</span></td>
-# <td align="right"><span class="new-count">1000+</span></td>
-# <td align="center" class="opts"><a onclick="return pycmd(&quot;opts:1588104695327&quot;);"><img src="/_anki/imgs/gears.svg" class="gears"></a></td>
-# </tr>
-# <tr class="deck ui-draggable ui-draggable-handle ui-droppable" id="1589635862390">
-
-#         <td class="decktd" colspan="5"><span class="collapse"></span><a class="deck filtered" href="#" onclick="return pycmd('open:1589635862390')">Drill 1 changed</a></td><td align="right"><span class="review-count">230</span></td><td align="right"><span class="zero-count">0</span></td><td align="center" class="opts"><a onclick="return pycmd(&quot;opts:1589635862390&quot;);"><img src="/_anki/imgs/gears.svg" class="gears"></a></td></tr><tr class="deck current ui-draggable ui-draggable-handle ui-droppable" id="1589118906975">
-
-#         <td class="decktd" colspan="5"><span class="collapse"></span><a class="deck " href="#" onclick="return pycmd('open:1589118906975')">Grammar</a></td><td align="right"><span class="zero-count">0</span></td><td align="right"><span class="zero-count">0</span></td><td align="center" class="opts"><a onclick="return pycmd(&quot;opts:1589118906975&quot;);"><img src="/_anki/imgs/gears.svg" class="gears"></a></td></tr><tr class="deck ui-draggable ui-draggable-handle ui-droppable" id="1585075338304">
-
-#         <td class="decktd" colspan="5"><span class="collapse"></span><a class="deck " href="#" onclick="return pycmd('open:1585075338304')">Spanish Essential Top 5000</a></td><td align="right"><span class="review-count">1000+</span></td><td align="right"><span class="new-count">1000+</span></td><td align="center" class="opts"><a onclick="return pycmd(&quot;opts:1585075338304&quot;);"><img src="/_anki/imgs/gears.svg" class="gears"></a></td></tr><tr class="deck ui-draggable ui-draggable-handle ui-droppable" id="1588127450627">
-
-#         <td class="decktd" colspan="5"><span class="collapse"></span><a class="deck " href="#" onclick="return pycmd('open:1588127450627')">Takoboto</a></td><td align="right"><span class="review-count">28</span></td><td align="right"><span class="new-count">17</span></td><td align="center" class="opts"><a onclick="return pycmd(&quot;opts:1588127450627&quot;);"><img src="/_anki/imgs/gears.svg" class="gears"></a></td></tr><tr class="deck ui-draggable ui-draggable-handle ui-droppable" id="1588017320375">
-
-#         <td class="decktd" colspan="5"><span class="collapse"></span><a class="deck " href="#" onclick="return pycmd('open:1588017320375')">日本語　KanjiDamage</a></td><td align="right"><span class="zero-count">0</span></td><td align="right"><span class="zero-count">0</span></td><td align="center" class="opts"><a onclick="return pycmd(&quot;opts:1588017320375&quot;);"><img src="/_anki/imgs/gears.svg" class="gears"></a></td></tr><tr class="deck ui-draggable ui-draggable-handle ui-droppable" id="1588970810769">
-
-#         <td class="decktd" colspan="5"><span class="collapse"></span><a class="deck " href="#" onclick="return pycmd('open:1588970810769')">日本語だけ</a></td><td align="right"><span class="review-count">1</span></td><td align="right"><span class="zero-count">0</span></td><td align="center" class="opts"><a onclick="return pycmd(&quot;opts:1588970810769&quot;);"><img src="/_anki/imgs/gears.svg" class="gears"></a></td></tr><tr class="top-level-drag-row ui-droppable"><td colspan="6">&nbsp;</td></tr>
-
-
     def _tags(self):
         tags = self.mw.drill.getTags(self.mw.col)
         if len(tags) < 1:

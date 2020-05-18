@@ -1,8 +1,6 @@
 # Drill
 Anki 2.1 Addon to make doing traditional flashcards or grammar drills easier.
 
-Work in progress. Major bugs still exist. Not completely functional at the momemnt.
-
 
 ## Basics
 
@@ -14,6 +12,7 @@ You can then choose another tag, and so on.
 
 You can mostly do this with Filtered decks currently without the addon, but you have to keep updating the filter search criteria and rebuilding
 the deck.
+
 
 ## Motivation
 
@@ -54,5 +53,5 @@ Anki has an incredible card browser and SRS system, but Anki is not designed for
 
 ## Bugs
 
-- Is possible to not load cards correctly. can trigger with sync
+- Deleting deck may not remove metadata.
 
