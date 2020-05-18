@@ -28,12 +28,13 @@ Anki has an incredible card browser and SRS system, but Anki is not designed for
 ### Features
 
 - Order tags: last seen or alpha
-- Timebox entire study session, even if changing tags
 - Show position within tag while reviewing
+- Create own timebox
 
 ### Tedious stuff prior to release
 
-- Can I remove monkey patching the deckconf commands?
+
+- Change drillconf and drillreviewer to inherited classes
 - incorporate Undo. this is normally managed by mw def onUndo
 - ensure mw._debugCard doesn't do something odd
 - Figure out what reviewCleanup does 
@@ -53,5 +54,5 @@ Anki has an incredible card browser and SRS system, but Anki is not designed for
 
 ## Bugs
 
-- Deleting deck may not remove metadata.
+- Lost drill meta somehow at least once.
 

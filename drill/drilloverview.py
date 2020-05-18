@@ -46,6 +46,7 @@ class DrillOverview:
         self.mw = mw
         self.web = mw.web
         self.bottom = BottomBar(mw, mw.bottomWeb)
+        self.timeBoxInitialized = False
 
     def show(self):
         av_player.stop_and_clear_queue()
@@ -55,6 +56,7 @@ class DrillOverview:
 
     def refresh(self):
         self.mw.col.reset()
+        self.mw.drill.load(self.mw.col)
         self._renderPage()
         self._renderBottom()
         self.mw.web.setFocus()
@@ -65,7 +67,7 @@ class DrillOverview:
     # then start studying
     # called by user action/link
     def studyNextTag(self):
-        tags = self.mw.drill.getTags(self.mw.col)
+        tags = self.mw.drill.getTags()
         currentTag = self.mw.drill.currentTag
         # set a reasonable default: first tag, or ''
         nextTag = ''
@@ -83,7 +85,9 @@ class DrillOverview:
     
     # begins study state and move to reviewer
     def startStudying(self, tag):
-        self.mw.col.startTimebox()
+        if not self.timeBoxInitialized:
+            self.timeBoxInitialized = True
+            self.mw.col.startTimebox()            
         self.mw.drill.onStudy(tag)
         self.mw.moveToState("review") 
         if self.mw.state == "overview":
@@ -213,7 +217,7 @@ class DrillOverview:
 
 
     def _tags(self):
-        tags = self.mw.drill.getTags(self.mw.col)
+        tags = self.mw.drill.getTags()
         if len(tags) < 1:
             return ""
         htmlTableHeader = """
@@ -228,7 +232,7 @@ class DrillOverview:
             <th class="count" align="left"></th>
         </tr>
         """
-        tags = self.mw.drill.getTags(self.mw.col)
+        tags = self.mw.drill.getTags()
         htmlRows = ""
         for tag in tags:
             last = self.mw.drill.tagLast(tag) # timestamp of last review

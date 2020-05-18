@@ -7,7 +7,7 @@ import datetime
 class Drill:
     def __init__(self):
         self.deck = None
-        self.col = None  # referencing collection like this is dangerous for us
+        self.col = None  # referencing collection or deck like this is dangerous for us
                          # on sync, and possibly other activities, Anki will discard
                          # the collection and create a new one
                          # in these cases, our reference will become invalid
@@ -42,7 +42,6 @@ class Drill:
             self.col.decks.save(self.deck)
 
 
-
     # Called when studying is initiated from the Overview
     # received tag to study
     # sets current tag and cursor to beginning
@@ -58,8 +57,8 @@ class Drill:
     # queries DB for all cids and tags in the current deck(s?)
     # formats these into a useful dict member
     # return nothing
-    def loadTagDict(self, col):
-        lim = 2000 # meh?
+    def loadTagDict(self):
+        lim = 10000 # meh?
         dids = ids2str(self.col.decks.active())
 #         count = self.col.db.scalar(f"""
 # select count() from (select id from cards where
@@ -211,26 +210,25 @@ class Drill:
     # given collection
     # creates cache of cids and tags in tagDict
     # return list of tags
-    def getTags(self, col):
-        # will need to clear any cache of tags if set for a different deck
-        self.setDeck(col)
+    def getTags(self):
         if self.tagDict == None:
-            self.loadTagDict(col)
+            self.loadTagDict()
         return list(self.tagDict.keys())
 
 
-    # if current deck is wrong, reload
-    # if deck is unchanged, do nothing
-    def setDeck(self, col):
-        currentDeck = col.decks.current()
+    # called on overview.reset()
+    def load(self, col):
         self.col = col
-        if self.deck == None or self.deck["id"] != currentDeck["id"]:
-            self.deck = currentDeck
-            if currentDeck.get("drillState", None) != None:
-                self.currentTag = currentDeck["drillState"].get("currentTag", None)
-                self.cursor = currentDeck["drillState"].get("cursor", 0)
-                self.tagMeta = currentDeck["drillState"].get("tagMeta", {})
-            self.clearCache()
+        self.deck = col.decks.current()
+        if self.deck.get("drillState", None) != None:
+            self.currentTag = self.deck["drillState"].get("currentTag", None)
+            self.cursor = self.deck["drillState"].get("cursor", 0)
+            self.tagMeta = self.deck["drillState"].get("tagMeta", {})
+        else:
+            self.currentTag = None
+            self.cursor = 0
+            self.tagMeta = {}
+        self.clearCache()
 
 
     # copy-paste from TagManger
