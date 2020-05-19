@@ -53,6 +53,14 @@ class Drill:
         self.save()
 
 
+    
+    # lazy loading of the tag dict
+    def getTagDict(self):
+        if self.tagDict == None:
+            self.loadTagDict()
+        return self.tagDict
+
+
     # DB query to create a tag dict object from the collection
     # queries DB for all cids and tags in the current deck(s?)
     # formats these into a useful dict member
@@ -90,10 +98,10 @@ class Drill:
         # during normal reviewing, col.log(card), bury siblings, and card.startTimer() are called
         # do we want to do these things?
         if self.currentTag == None:
-            keys = list(self.tagDict.keys())
+            keys = list(self.getTagDict().keys())
             if len(keys) > 0:
                 self.currentTag = keys[0] 
-        cards = self.tagDict.get(self.currentTag, [])
+        cards = self.getTagDict().get(self.currentTag, [])
         if len(cards) <= self.cursor:
             return None
         else:
@@ -106,7 +114,7 @@ class Drill:
 
     # convenience
     def currentCardCount(self):
-        return len(self.tagDict.get(self.currentTag, []))
+        return len(self.getTagDict().get(self.currentTag, []))
 
     
     #convenience
@@ -211,9 +219,7 @@ class Drill:
     # creates cache of cids and tags in tagDict
     # return list of tags
     def getTags(self):
-        if self.tagDict == None:
-            self.loadTagDict()
-        return list(self.tagDict.keys())
+        return list(self.getTagDict().keys())
 
 
     # called on overview.reset()

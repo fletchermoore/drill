@@ -46,7 +46,7 @@ class DrillOverview:
         self.mw = mw
         self.web = mw.web
         self.bottom = BottomBar(mw, mw.bottomWeb)
-        self.timeBoxInitialized = False
+
 
     def show(self):
         av_player.stop_and_clear_queue()
@@ -85,9 +85,7 @@ class DrillOverview:
     
     # begins study state and move to reviewer
     def startStudying(self, tag):
-        if not self.timeBoxInitialized:
-            self.timeBoxInitialized = True
-            self.mw.col.startTimebox()            
+        self.mw.col.startTimebox()            
         self.mw.drill.onStudy(tag)
         self.mw.moveToState("review") 
         if self.mw.state == "overview":

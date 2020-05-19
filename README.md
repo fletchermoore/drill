@@ -23,7 +23,7 @@ Anki has an incredible card browser and SRS system, but Anki is not designed for
 
 
 
-## TODO
+## ToDo
 
 ### Features
 
@@ -51,6 +51,7 @@ Anki has an incredible card browser and SRS system, but Anki is not designed for
 - move table styling to css file?
 - make sure styling works with night view
 - play nice with localization
+
 
 ## Bugs
 
